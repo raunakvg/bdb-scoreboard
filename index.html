@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Americano · Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #070b12;
+  --bg2:     #0d1420;
+  --bg3:     #121b2e;
+  --card:    rgba(255,255,255,0.04);
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --lime:    #b8ff57;
+  --blue:    #4a9eff;
+  --red:     #ff5757;
+  --gold:    #ffd166;
+  --silver:  #c8d0e0;
+  --bronze:  #d4845a;
+  --text:    #f0f4ff;
+  --muted:   #6b7a99;
+  --muted2:  #3a4560;
+  --r:       14px;
+  --rs:      8px;
+  --fh:      'Bebas Neue', sans-serif;
+  --fb:      'DM Sans', sans-serif;
+  --fm:      'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--fb); min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% -10%, rgba(184,255,87,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 110%, rgba(74,158,255,.07) 0%, transparent 60%);
+}
+
+/* HERO */
+.hero {
+  position: relative; z-index: 1;
+  padding: 56px 24px 40px; text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to bottom, rgba(184,255,87,.04), transparent);
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--lime); background: rgba(184,255,87,.1); border: 1px solid rgba(184,255,87,.25);
+  border-radius: 40px; padding: 5px 14px; margin-bottom: 20px;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--lime);
+  animation: blink 1.4s ease infinite;
+}
+@keyframes blink {
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(184,255,87,.6)}
+  50%{opacity:.6;box-shadow:0 0 0 5px rgba(184,255,87,0)}
+}
+.hero h1 {
+  font-family: var(--fh); font-size: clamp(52px,10vw,96px);
+  line-height: .95; letter-spacing: .02em;
+}
+.hero h1 span { color: var(--lime); }
+.hero-sub {
+  margin-top: 14px; font-size: 14px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+}
+.hero-sub b { color: var(--text); font-weight: 600; }
+.sep { color: var(--muted2); }
+
+/* PROGRESS */
+.prog-wrap {
+  position: relative; z-index: 1;
+  background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px;
+}
+.prog-inner {
+  max-width: 840px; margin: 0 auto;
+  display: flex; align-items: center; gap: 14px; padding: 14px 0;
+}
+.prog-label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.prog-track { flex: 1; height: 5px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.prog-fill {
+  height: 100%; width: 0%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--lime), var(--blue));
+  transition: width .7s cubic-bezier(.4,0,.2,1);
+}
+.prog-count { font-family: var(--fm); font-size: 12px; color: var(--lime); white-space: nowrap; }
+
+/* TABS */
+.tabs-wrap {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,11,18,.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.tabs { max-width: 840px; margin: 0 auto; display: flex; padding: 0 24px; }
+.tab-btn {
+  flex: 1; padding: 16px 8px; text-align: center;
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+  color: var(--muted); cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
+}
+.tab-btn.active { color: var(--lime); border-color: var(--lime); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+
+/* MAIN */
+.main { max-width: 840px; margin: 0 auto; padding: 28px 20px 80px; position: relative; z-index: 1; }
+.pane { display: none; }
+.pane.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ROUND CARDS */
+.round-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 16px;
+  transition: border-color .4s;
+}
+.round-card.complete { border-color: rgba(184,255,87,.3); }
+.round-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border);
+}
+.round-title { font-family: var(--fh); font-size: 22px; letter-spacing: .05em; }
+.badge {
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 40px;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.badge-none { background: var(--bg3); color: var(--muted); }
+.badge-part { background: rgba(255,209,102,.12); color: var(--gold); }
+.badge-done { background: rgba(184,255,87,.12); color: var(--lime); }
+
+/* MATCH */
+.match { padding: 16px 18px; border-top: 1px solid var(--border); }
+.court-tag {
+  font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.court-tag::before {
+  content: ''; display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--blue);
+}
+.match-grid {
+  display: grid; grid-template-columns: 1fr auto auto auto 1fr;
+  align-items: center; gap: 10px;
+}
+.team { font-size: 13px; font-weight: 600; }
+.team.r { text-align: right; }
+.score-box {
+  width: 54px; height: 48px; background: var(--bg3); border: 1.5px solid var(--border2);
+  border-radius: var(--rs); color: var(--text); font-family: var(--fm); font-size: 22px;
+  font-weight: 500; text-align: center; outline: none; -moz-appearance: textfield;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.score-box::-webkit-inner-spin-button, .score-box::-webkit-outer-spin-button { -webkit-appearance: none; }
+.score-box:focus { border-color: var(--blue); background: rgba(74,158,255,.08); box-shadow: 0 0 0 3px rgba(74,158,255,.12); }
+.score-box.ok { border-color: var(--lime); background: rgba(184,255,87,.06); color: var(--lime); }
+.score-box.bad { border-color: var(--red); background: rgba(255,87,87,.06); color: var(--red); }
+.vs { font-size: 11px; font-weight: 700; color: var(--muted2); text-align: center; }
+.match-msg { margin-top: 8px; font-size: 11px; font-weight: 600; text-align: center; height: 14px; }
+.ok-msg { color: var(--lime); }
+.bad-msg { color: var(--red); }
+
+/* LEADERBOARD */
+.lb-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+.lb-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 14px; text-align: center; }
+.lb-val { font-family: var(--fh); font-size: 36px; letter-spacing: .04em; color: var(--lime); line-height: 1; }
+.lb-lbl { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
+.lb-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.lb-head {
+  display: grid; grid-template-columns: 52px 1fr 80px 70px 70px;
+  padding: 10px 18px; font-size: 10px; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+}
+.lb-head > *:not(:first-child):not(:nth-child(2)) { text-align: right; }
+.lb-row {
+  display: grid; grid-template-columns: 52px 1fr 80px 70px 70px;
+  padding: 14px 18px; align-items: center; border-bottom: 1px solid var(--border); transition: background .2s;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: rgba(255,255,255,.03); }
+.lb-row.r1 { background: rgba(255,209,102,.06); }
+.lb-row.r2 { background: rgba(200,208,224,.04); }
+.lb-row.r3 { background: rgba(212,132,90,.04); }
+.lb-rank { font-family: var(--fh); font-size: 24px; color: var(--muted); text-align: center; }
+.c-g { color: var(--gold); }
+.c-s { color: var(--silver); }
+.c-b { color: var(--bronze); }
+.lb-name { font-size: 15px; font-weight: 600; }
+.lb-pts { font-family: var(--fh); font-size: 28px; letter-spacing: .04em; text-align: right; }
+.lb-sub { font-family: var(--fm); font-size: 13px; color: var(--muted); text-align: right; }
+
+/* HOW TO */
+.howto { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 28px; }
+.howto h3 { font-family: var(--fh); font-size: 28px; letter-spacing: .05em; color: var(--lime); margin-bottom: 20px; }
+.step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.step-n {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--lime); color: var(--bg);
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.step p { font-size: 13px; color: var(--muted); line-height: 1.75; }
+.step p strong { color: var(--text); }
+.step p a { color: var(--lime); text-decoration: none; }
+.step p a:hover { text-decoration: underline; }
+.chip { font-family: var(--fm); font-size: 12px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 7px; color: var(--blue); }
+.note { margin-top: 20px; padding: 14px; background: rgba(184,255,87,.07); border: 1px solid rgba(184,255,87,.2); border-radius: 10px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+.note strong { color: var(--lime); }
+
+.reset-btn {
+  margin-top: 24px; width: 100%; padding: 12px; background: transparent;
+  border: 1px solid rgba(255,87,87,.3); border-radius: var(--rs);
+  color: rgba(255,87,87,.7); font-family: var(--fb); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .2s; letter-spacing: .04em;
+}
+.reset-btn:hover { background: rgba(255,87,87,.1); color: var(--red); border-color: var(--red); }
+
+@media(max-width:520px) {
+  .hero { padding: 36px 16px 24px; }
+  .main { padding: 18px 12px 60px; }
+  .match-grid { gap: 6px; }
+  .score-box { width: 46px; height: 42px; font-size: 18px; }
+  .team { font-size: 12px; }
+  .lb-stats { gap: 8px; }
+  .lb-val { font-size: 28px; }
+  .lb-head, .lb-row { grid-template-columns: 40px 1fr 62px 54px 54px; padding: 11px 12px; }
+  .lb-pts { font-size: 22px; }
+  .lb-name { font-size: 13px; }
+  .howto { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow"><span class="live-dot"></span>Live Scoring</div>
+  <h1>AMERI<span>CANO</span></h1>
+  <div class="hero-sub">
+    <span><b>8</b> Players</span><span class="sep">·</span>
+    <span><b>2</b> Courts</span><span class="sep">·</span>
+    <span><b>32</b> Points</span><span class="sep">·</span>
+    <span><b>7</b> Rounds</span>
+  </div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-inner">
+    <span class="prog-label">Tournament Progress</span>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <span class="prog-count" id="prog-count">0 / 14</span>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showPane('schedule',this)">📋 &nbsp;Schedule</button>
+    <button class="tab-btn" onclick="showPane('leaderboard',this)">🏆 &nbsp;Leaderboard</button>
+    <button class="tab-btn" onclick="showPane('howto',this)">🚀 &nbsp;Host This</button>
+  </div>
+</div>
+
+<div class="main">
+  <div id="pane-schedule" class="pane active"></div>
+
+  <div id="pane-leaderboard" class="pane">
+    <div class="lb-stats">
+      <div class="lb-stat"><div class="lb-val" id="s-done">0</div><div class="lb-lbl">Matches Done</div></div>
+      <div class="lb-stat"><div class="lb-val" id="s-leader" style="font-size:20px;padding-top:8px">—</div><div class="lb-lbl">Leader</div></div>
+      <div class="lb-stat"><div class="lb-val" id="s-top">—</div><div class="lb-lbl">Top Score</div></div>
+    </div>
+    <div class="lb-table">
+      <div class="lb-head">
+        <div>#</div><div>Player</div>
+        <div style="text-align:right">Points</div>
+        <div style="text-align:right">Played</div>
+        <div style="text-align:right">Avg</div>
+      </div>
+      <div id="lb-body"></div>
+    </div>
+    <button class="reset-btn" onclick="resetScores()">↺ &nbsp;Reset All Scores</button>
+  </div>
+
+  <div id="pane-howto" class="pane">
+    <div class="howto">
+      <h3>Host on GitHub Pages</h3>
+      <div class="step"><div class="step-n">1</div>
+        <p>Go to <a href="https://github.com" target="_blank">github.com</a> and sign up for a free account. Then click the <strong>+</strong> icon → <strong>New repository</strong>.</p></div>
+      <div class="step"><div class="step-n">2</div>
+        <p>Name it something like <code class="chip">americano-scoreboard</code>. Set it to <strong>Public</strong>. Tick <strong>Add a README file</strong>. Click <strong>Create repository</strong>.</p></div>
+      <div class="step"><div class="step-n">3</div>
+        <p>Inside the repo, click <strong>Add file → Upload files</strong>. Drag in this HTML file — but <strong>rename it to <code class="chip">index.html</code> first</strong> (GitHub Pages needs this exact name).</p></div>
+      <div class="step"><div class="step-n">4</div>
+        <p>Scroll down and click <strong>Commit changes</strong>.</p></div>
+      <div class="step"><div class="step-n">5</div>
+        <p>Go to <strong>Settings → Pages</strong> in the left sidebar. Under Source, choose <strong>Deploy from a branch</strong>, set branch to <code class="chip">main</code>, folder to <code class="chip">/ (root)</code>. Click <strong>Save</strong>.</p></div>
+      <div class="step"><div class="step-n">6</div>
+        <p>Wait about 60 seconds, refresh the page. Your URL will appear — e.g. <code class="chip">https://yourname.github.io/americano-scoreboard</code>. That's your live site — share it with everyone!</p></div>
+      <div class="note">
+        <strong>Note on scores:</strong> Scores save in your browser automatically. The person running the scoreboard just needs to keep the tab open. If you want every phone in the group to see live updates simultaneously, ask about the Firebase version of this app.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MAX = 32;
+const PLAYERS = ["Chirag","Jubin","Param","Raunak","Rehan","Rishi","Sankalp","Shlok"];
+const ROUNDS = [
+  {r:1,matches:[
+    {id:"r1c1",court:1,a:["Rishi","Raunak"],   b:["Chirag","Sankalp"]},
+    {id:"r1c2",court:2,a:["Param","Shlok"],    b:["Jubin","Rehan"]}]},
+  {r:2,matches:[
+    {id:"r2c1",court:1,a:["Rishi","Chirag"],   b:["Param","Jubin"]},
+    {id:"r2c2",court:2,a:["Raunak","Sankalp"], b:["Shlok","Rehan"]}]},
+  {r:3,matches:[
+    {id:"r3c1",court:1,a:["Rishi","Sankalp"],  b:["Shlok","Jubin"]},
+    {id:"r3c2",court:2,a:["Raunak","Chirag"],  b:["Param","Rehan"]}]},
+  {r:4,matches:[
+    {id:"r4c1",court:1,a:["Rishi","Param"],    b:["Raunak","Shlok"]},
+    {id:"r4c2",court:2,a:["Chirag","Jubin"],   b:["Sankalp","Rehan"]}]},
+  {r:5,matches:[
+    {id:"r5c1",court:1,a:["Rishi","Shlok"],    b:["Sankalp","Param"]},
+    {id:"r5c2",court:2,a:["Raunak","Jubin"],   b:["Chirag","Rehan"]}]},
+  {r:6,matches:[
+    {id:"r6c1",court:1,a:["Rishi","Jubin"],    b:["Chirag","Param"]},
+    {id:"r6c2",court:2,a:["Raunak","Rehan"],   b:["Sankalp","Shlok"]}]},
+  {r:7,matches:[
+    {id:"r7c1",court:1,a:["Rishi","Rehan"],    b:["Sankalp","Jubin"]},
+    {id:"r7c2",court:2,a:["Raunak","Param"],   b:["Chirag","Shlok"]}]},
+];
+const ALL = ROUNDS.flatMap(r => r.matches);
+let scores = JSON.parse(localStorage.getItem('am8scores') || '{}');
+const save = () => localStorage.setItem('am8scores', JSON.stringify(scores));
+
+// Build schedule
+function buildSchedule() {
+  const pane = document.getElementById('pane-schedule');
+  ROUNDS.forEach(rd => {
+    const card = document.createElement('div');
+    card.className = 'round-card'; card.id = `card-r${rd.r}`;
+    card.innerHTML = `<div class="round-header">
+      <div class="round-title">Round ${rd.r}</div>
+      <div class="badge badge-none" id="bdg-r${rd.r}">Not started</div>
+    </div>`;
+    rd.matches.forEach(m => {
+      const d = document.createElement('div');
+      d.className = 'match';
+      d.innerHTML = `
+        <div class="court-tag">Court ${m.court}</div>
+        <div class="match-grid">
+          <div class="team">${m.a.join(' &amp; ')}</div>
+          <input class="score-box" id="sa-${m.id}" type="number" min="0" max="${MAX}" inputmode="numeric" placeholder="—"
+            oninput="onScore('${m.id}','a',this.value)" onchange="onScore('${m.id}','a',this.value)">
+          <div class="vs">vs</div>
+          <input class="score-box" id="sb-${m.id}" type="number" min="0" max="${MAX}" inputmode="numeric" placeholder="—"
+            oninput="onScore('${m.id}','b',this.value)" onchange="onScore('${m.id}','b',this.value)">
+          <div class="team r">${m.b.join(' &amp; ')}</div>
+        </div>
+        <div class="match-msg" id="msg-${m.id}"></div>`;
+      card.appendChild(d);
+    });
+    pane.appendChild(card);
+  });
+  syncAll();
+}
+
+let timers = {};
+function onScore(id, side, raw) {
+  const sa = document.getElementById(`sa-${id}`);
+  const sb = document.getElementById(`sb-${id}`);
+  const msg = document.getElementById(`msg-${id}`);
+  const el = side === 'a' ? sa : sb;
+  const v = parseInt(raw);
+  if (!isNaN(v) && v >= 0 && v <= MAX) { el.classList.remove('bad'); el.classList.add('ok'); }
+  else { el.classList.add('bad'); el.classList.remove('ok'); }
+  const a = parseInt(sa.value), b = parseInt(sb.value);
+  if (!isNaN(a) && !isNaN(b)) {
+    if (a + b !== MAX) {
+      msg.textContent = `Must add to ${MAX} (currently ${a+b})`; msg.className = 'match-msg bad-msg';
+      sa.classList.add('bad'); sb.classList.add('bad'); sa.classList.remove('ok'); sb.classList.remove('ok');
+      delete scores[id]; save(); refresh(); return;
+    }
+    msg.textContent = `✓ ${a} · ${b}`; msg.className = 'match-msg ok-msg';
+    sa.classList.remove('bad'); sb.classList.remove('bad'); sa.classList.add('ok'); sb.classList.add('ok');
+    clearTimeout(timers[id]);
+    timers[id] = setTimeout(() => { scores[id] = {a,b}; save(); refresh(); }, 300);
+  } else {
+    msg.textContent = ''; msg.className = 'match-msg';
+    if (scores[id]) { delete scores[id]; save(); refresh(); }
+  }
+}
+
+function syncAll() {
+  ALL.forEach(m => {
+    const d = scores[m.id];
+    const sa = document.getElementById(`sa-${m.id}`);
+    const sb = document.getElementById(`sb-${m.id}`);
+    const msg = document.getElementById(`msg-${m.id}`);
+    if (!sa || !d) return;
+    if (document.activeElement !== sa) sa.value = d.a;
+    if (document.activeElement !== sb) sb.value = d.b;
+    sa.classList.add('ok'); sb.classList.add('ok');
+    if (msg) { msg.textContent = `✓ ${d.a} · ${d.b}`; msg.className = 'match-msg ok-msg'; }
+  });
+  refresh();
+}
+
+function refresh() {
+  const done = Object.keys(scores).length;
+  document.getElementById('prog-fill').style.width = (done/ALL.length*100)+'%';
+  document.getElementById('prog-count').textContent = `${done} / ${ALL.length}`;
+  document.getElementById('s-done').textContent = done;
+  ROUNDS.forEach(rd => {
+    const n = rd.matches.filter(m => scores[m.id]).length;
+    const badge = document.getElementById(`bdg-r${rd.r}`);
+    const card = document.getElementById(`card-r${rd.r}`);
+    if (!badge) return;
+    if (n === 0) { badge.textContent='Not started'; badge.className='badge badge-none'; card.classList.remove('complete'); }
+    else if (n === rd.matches.length) { badge.textContent='✓ Complete'; badge.className='badge badge-done'; card.classList.add('complete'); }
+    else { badge.textContent=`${n}/${rd.matches.length} done`; badge.className='badge badge-part'; card.classList.remove('complete'); }
+  });
+  renderLB();
+}
+
+function computeScores() {
+  const pts={}, played={};
+  PLAYERS.forEach(p=>{pts[p]=0;played[p]=0;});
+  ALL.forEach(m=>{
+    const d=scores[m.id];
+    if(d){m.a.forEach(p=>{pts[p]+=d.a;played[p]++;});m.b.forEach(p=>{pts[p]+=d.b;played[p]++;});}
+  });
+  return PLAYERS.map(p=>({name:p,pts:pts[p],played:played[p],avg:played[p]?(pts[p]/played[p]).toFixed(1):'—'}))
+    .sort((a,b)=>b.pts-a.pts||a.name.localeCompare(b.name));
+}
+
+function renderLB() {
+  const sorted = computeScores();
+  const mc = ['c-g','c-s','c-b'];
+  const rc = ['r1','r2','r3'];
+  let rank=1;
+  sorted.forEach((p,i)=>{if(i>0&&p.pts<sorted[i-1].pts)rank=i+1;p.rank=rank;});
+  document.getElementById('lb-body').innerHTML = sorted.map((p,i)=>{
+    const m=i<3?mc[i]:''; const r=i<3?rc[i]:'';
+    const icon=i===0?'🥇':i===1?'🥈':i===2?'🥉':p.rank;
+    return `<div class="lb-row ${r}">
+      <div class="lb-rank ${m}">${icon}</div>
+      <div class="lb-name">${p.name}</div>
+      <div class="lb-pts ${m}">${p.pts}</div>
+      <div class="lb-sub">${p.played}</div>
+      <div class="lb-sub">${p.avg}</div>
+    </div>`;
+  }).join('');
+  if(sorted[0]?.played>0){
+    document.getElementById('s-leader').textContent=sorted[0].name;
+    document.getElementById('s-top').textContent=sorted[0].pts;
+  } else {
+    document.getElementById('s-leader').textContent='—';
+    document.getElementById('s-top').textContent='—';
+  }
+}
+
+function showPane(name, btn) {
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`pane-${name}`).classList.add('active');
+  btn.classList.add('active');
+}
+
+function resetScores() {
+  if(!confirm('Reset all scores? This cannot be undone.')) return;
+  scores={}; save();
+  document.querySelectorAll('.score-box').forEach(e=>{e.value='';e.classList.remove('ok','bad');});
+  document.querySelectorAll('.match-msg').forEach(e=>{e.textContent='';e.className='match-msg';});
+  refresh();
+}
+
+buildSchedule();
+</script>
+</body>
+</html>
