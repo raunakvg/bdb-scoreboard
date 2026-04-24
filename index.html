@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Americano · Scoreboard</title>
+<title>BDB Americano · 24th April</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -32,10 +32,7 @@
   --fm:      'DM Mono', monospace;
 }
 html { scroll-behavior: smooth; }
-body {
-  background: var(--bg); color: var(--text);
-  font-family: var(--fb); min-height: 100vh; overflow-x: hidden;
-}
+body { background: var(--bg); color: var(--text); font-family: var(--fb); min-height: 100vh; overflow-x: hidden; }
 body::before {
   content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
@@ -43,7 +40,45 @@ body::before {
     radial-gradient(ellipse 60% 50% at 90% 110%, rgba(74,158,255,.07) 0%, transparent 60%);
 }
 
-/* HERO */
+/* ── SETUP OVERLAY ── */
+#setup-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.setup-box {
+  width: 100%; max-width: 480px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 36px 32px;
+  animation: fadeUp .4s ease;
+}
+.setup-box h2 { font-family: var(--fh); font-size: 32px; letter-spacing: .05em; color: var(--lime); margin-bottom: 6px; }
+.setup-box p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+.setup-box p a { color: var(--lime); text-decoration: none; }
+.setup-box p a:hover { text-decoration: underline; }
+.setup-steps { margin-bottom: 20px; }
+.setup-step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.snum { width: 24px; height: 24px; border-radius: 50%; background: var(--lime); color: var(--bg); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.setup-step p { font-size: 13px; color: var(--muted); line-height: 1.65; margin: 0; }
+.setup-step p strong { color: var(--text); }
+.chip { font-family: var(--fm); font-size: 11px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 6px; color: var(--blue); }
+.setup-box textarea {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border2);
+  border-radius: var(--rs); color: var(--text); font-family: var(--fm); font-size: 12px;
+  padding: 12px; resize: vertical; min-height: 160px; outline: none; line-height: 1.6;
+}
+.setup-box textarea:focus { border-color: var(--lime); }
+.setup-err { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+.setup-btn {
+  width: 100%; margin-top: 14px; padding: 14px;
+  background: var(--lime); border: none; border-radius: var(--rs);
+  color: var(--bg); font-family: var(--fb); font-size: 15px; font-weight: 700;
+  cursor: pointer; letter-spacing: .04em; transition: opacity .2s;
+}
+.setup-btn:hover { opacity: .85; }
+
+/* ── HERO ── */
 .hero {
   position: relative; z-index: 1;
   padding: 56px 24px 40px; text-align: center;
@@ -56,107 +91,57 @@ body::before {
   color: var(--lime); background: rgba(184,255,87,.1); border: 1px solid rgba(184,255,87,.25);
   border-radius: 40px; padding: 5px 14px; margin-bottom: 20px;
 }
-.live-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--lime);
-  animation: blink 1.4s ease infinite;
-}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); animation: blink 1.4s ease infinite; }
 @keyframes blink {
   0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(184,255,87,.6)}
   50%{opacity:.6;box-shadow:0 0 0 5px rgba(184,255,87,0)}
 }
-.hero h1 {
-  font-family: var(--fh); font-size: clamp(52px,10vw,96px);
-  line-height: .95; letter-spacing: .02em;
-}
+.hero h1 { font-family: var(--fh); font-size: clamp(44px,9vw,88px); line-height: .95; letter-spacing: .02em; }
 .hero h1 span { color: var(--lime); }
-.hero-sub {
-  margin-top: 14px; font-size: 14px; color: var(--muted);
-  display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
-}
+.hero-date { margin-top: 8px; font-size: 13px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.hero-sub { margin-top: 12px; font-size: 14px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
 .hero-sub b { color: var(--text); font-weight: 600; }
 .sep { color: var(--muted2); }
 
-/* PROGRESS */
-.prog-wrap {
-  position: relative; z-index: 1;
-  background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px;
-}
-.prog-inner {
-  max-width: 840px; margin: 0 auto;
-  display: flex; align-items: center; gap: 14px; padding: 14px 0;
-}
+/* ── PROGRESS ── */
+.prog-wrap { position: relative; z-index: 1; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; }
+.prog-inner { max-width: 840px; margin: 0 auto; display: flex; align-items: center; gap: 14px; padding: 14px 0; }
 .prog-label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
 .prog-track { flex: 1; height: 5px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
-.prog-fill {
-  height: 100%; width: 0%; border-radius: 99px;
-  background: linear-gradient(90deg, var(--lime), var(--blue));
-  transition: width .7s cubic-bezier(.4,0,.2,1);
-}
+.prog-fill { height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--lime), var(--blue)); transition: width .7s cubic-bezier(.4,0,.2,1); }
 .prog-count { font-family: var(--fm); font-size: 12px; color: var(--lime); white-space: nowrap; }
 
-/* TABS */
-.tabs-wrap {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(7,11,18,.92); backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-}
+/* ── TABS ── */
+.tabs-wrap { position: sticky; top: 0; z-index: 100; background: rgba(7,11,18,.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
 .tabs { max-width: 840px; margin: 0 auto; display: flex; padding: 0 24px; }
-.tab-btn {
-  flex: 1; padding: 16px 8px; text-align: center;
-  font-size: 13px; font-weight: 600; letter-spacing: .04em;
-  color: var(--muted); cursor: pointer; border: none; background: none;
-  border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
-}
+.tab-btn { flex: 1; padding: 16px 8px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
 .tab-btn.active { color: var(--lime); border-color: var(--lime); }
 .tab-btn:hover:not(.active) { color: var(--text); }
 
-/* MAIN */
+/* ── MAIN ── */
 .main { max-width: 840px; margin: 0 auto; padding: 28px 20px 80px; position: relative; z-index: 1; }
 .pane { display: none; }
 .pane.active { display: block; animation: fadeUp .3s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-/* ROUND CARDS */
-.round-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--r); overflow: hidden; margin-bottom: 16px;
-  transition: border-color .4s;
-}
+/* ── ROUND CARDS ── */
+.round-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; transition: border-color .4s; }
 .round-card.complete { border-color: rgba(184,255,87,.3); }
-.round-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border);
-}
+.round-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); }
 .round-title { font-family: var(--fh); font-size: 22px; letter-spacing: .05em; }
-.badge {
-  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 40px;
-  letter-spacing: .06em; text-transform: uppercase;
-}
+.badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 40px; letter-spacing: .06em; text-transform: uppercase; }
 .badge-none { background: var(--bg3); color: var(--muted); }
 .badge-part { background: rgba(255,209,102,.12); color: var(--gold); }
 .badge-done { background: rgba(184,255,87,.12); color: var(--lime); }
 
-/* MATCH */
+/* ── MATCH ── */
 .match { padding: 16px 18px; border-top: 1px solid var(--border); }
-.court-tag {
-  font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-}
-.court-tag::before {
-  content: ''; display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--blue);
-}
-.match-grid {
-  display: grid; grid-template-columns: 1fr auto auto auto 1fr;
-  align-items: center; gap: 10px;
-}
+.court-tag { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.court-tag::before { content: ''; display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--blue); }
+.match-grid { display: grid; grid-template-columns: 1fr auto auto auto 1fr; align-items: center; gap: 10px; }
 .team { font-size: 13px; font-weight: 600; }
 .team.r { text-align: right; }
-.score-box {
-  width: 54px; height: 48px; background: var(--bg3); border: 1.5px solid var(--border2);
-  border-radius: var(--rs); color: var(--text); font-family: var(--fm); font-size: 22px;
-  font-weight: 500; text-align: center; outline: none; -moz-appearance: textfield;
-  transition: border-color .2s, background .2s, box-shadow .2s;
-}
+.score-box { width: 54px; height: 48px; background: var(--bg3); border: 1.5px solid var(--border2); border-radius: var(--rs); color: var(--text); font-family: var(--fm); font-size: 22px; font-weight: 500; text-align: center; outline: none; -moz-appearance: textfield; transition: border-color .2s, background .2s, box-shadow .2s; }
 .score-box::-webkit-inner-spin-button, .score-box::-webkit-outer-spin-button { -webkit-appearance: none; }
 .score-box:focus { border-color: var(--blue); background: rgba(74,158,255,.08); box-shadow: 0 0 0 3px rgba(74,158,255,.12); }
 .score-box.ok { border-color: var(--lime); background: rgba(184,255,87,.06); color: var(--lime); }
@@ -166,58 +151,26 @@ body::before {
 .ok-msg { color: var(--lime); }
 .bad-msg { color: var(--red); }
 
-/* LEADERBOARD */
+/* ── LEADERBOARD ── */
 .lb-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
 .lb-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 14px; text-align: center; }
 .lb-val { font-family: var(--fh); font-size: 36px; letter-spacing: .04em; color: var(--lime); line-height: 1; }
 .lb-lbl { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
 .lb-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-.lb-head {
-  display: grid; grid-template-columns: 52px 1fr 80px 70px 70px;
-  padding: 10px 18px; font-size: 10px; font-weight: 600; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,.02);
-}
+.lb-head { display: grid; grid-template-columns: 52px 1fr 80px 70px 70px; padding: 10px 18px; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); background: rgba(255,255,255,.02); }
 .lb-head > *:not(:first-child):not(:nth-child(2)) { text-align: right; }
-.lb-row {
-  display: grid; grid-template-columns: 52px 1fr 80px 70px 70px;
-  padding: 14px 18px; align-items: center; border-bottom: 1px solid var(--border); transition: background .2s;
-}
+.lb-row { display: grid; grid-template-columns: 52px 1fr 80px 70px 70px; padding: 14px 18px; align-items: center; border-bottom: 1px solid var(--border); transition: background .2s; }
 .lb-row:last-child { border-bottom: none; }
 .lb-row:hover { background: rgba(255,255,255,.03); }
 .lb-row.r1 { background: rgba(255,209,102,.06); }
 .lb-row.r2 { background: rgba(200,208,224,.04); }
 .lb-row.r3 { background: rgba(212,132,90,.04); }
 .lb-rank { font-family: var(--fh); font-size: 24px; color: var(--muted); text-align: center; }
-.c-g { color: var(--gold); }
-.c-s { color: var(--silver); }
-.c-b { color: var(--bronze); }
+.c-g { color: var(--gold); } .c-s { color: var(--silver); } .c-b { color: var(--bronze); }
 .lb-name { font-size: 15px; font-weight: 600; }
 .lb-pts { font-family: var(--fh); font-size: 28px; letter-spacing: .04em; text-align: right; }
 .lb-sub { font-family: var(--fm); font-size: 13px; color: var(--muted); text-align: right; }
-
-/* HOW TO */
-.howto { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 28px; }
-.howto h3 { font-family: var(--fh); font-size: 28px; letter-spacing: .05em; color: var(--lime); margin-bottom: 20px; }
-.step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
-.step-n {
-  width: 26px; height: 26px; border-radius: 50%; background: var(--lime); color: var(--bg);
-  font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
-}
-.step p { font-size: 13px; color: var(--muted); line-height: 1.75; }
-.step p strong { color: var(--text); }
-.step p a { color: var(--lime); text-decoration: none; }
-.step p a:hover { text-decoration: underline; }
-.chip { font-family: var(--fm); font-size: 12px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 7px; color: var(--blue); }
-.note { margin-top: 20px; padding: 14px; background: rgba(184,255,87,.07); border: 1px solid rgba(184,255,87,.2); border-radius: 10px; font-size: 13px; color: var(--muted); line-height: 1.7; }
-.note strong { color: var(--lime); }
-
-.reset-btn {
-  margin-top: 24px; width: 100%; padding: 12px; background: transparent;
-  border: 1px solid rgba(255,87,87,.3); border-radius: var(--rs);
-  color: rgba(255,87,87,.7); font-family: var(--fb); font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all .2s; letter-spacing: .04em;
-}
+.reset-btn { margin-top: 24px; width: 100%; padding: 12px; background: transparent; border: 1px solid rgba(255,87,87,.3); border-radius: var(--rs); color: rgba(255,87,87,.7); font-family: var(--fb); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; letter-spacing: .04em; }
 .reset-btn:hover { background: rgba(255,87,87,.1); color: var(--red); border-color: var(--red); }
 
 @media(max-width:520px) {
@@ -231,82 +184,92 @@ body::before {
   .lb-head, .lb-row { grid-template-columns: 40px 1fr 62px 54px 54px; padding: 11px 12px; }
   .lb-pts { font-size: 22px; }
   .lb-name { font-size: 13px; }
-  .howto { padding: 18px; }
+  .setup-box { padding: 24px 20px; }
 }
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-eyebrow"><span class="live-dot"></span>Live Scoring</div>
-  <h1>AMERI<span>CANO</span></h1>
-  <div class="hero-sub">
-    <span><b>8</b> Players</span><span class="sep">·</span>
-    <span><b>2</b> Courts</span><span class="sep">·</span>
-    <span><b>32</b> Points</span><span class="sep">·</span>
-    <span><b>7</b> Rounds</span>
-  </div>
-</div>
-
-<div class="prog-wrap">
-  <div class="prog-inner">
-    <span class="prog-label">Tournament Progress</span>
-    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
-    <span class="prog-count" id="prog-count">0 / 14</span>
-  </div>
-</div>
-
-<div class="tabs-wrap">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showPane('schedule',this)">📋 &nbsp;Schedule</button>
-    <button class="tab-btn" onclick="showPane('leaderboard',this)">🏆 &nbsp;Leaderboard</button>
-    <button class="tab-btn" onclick="showPane('howto',this)">🚀 &nbsp;Host This</button>
-  </div>
-</div>
-
-<div class="main">
-  <div id="pane-schedule" class="pane active"></div>
-
-  <div id="pane-leaderboard" class="pane">
-    <div class="lb-stats">
-      <div class="lb-stat"><div class="lb-val" id="s-done">0</div><div class="lb-lbl">Matches Done</div></div>
-      <div class="lb-stat"><div class="lb-val" id="s-leader" style="font-size:20px;padding-top:8px">—</div><div class="lb-lbl">Leader</div></div>
-      <div class="lb-stat"><div class="lb-val" id="s-top">—</div><div class="lb-lbl">Top Score</div></div>
+<!-- ── SETUP OVERLAY ── -->
+<div id="setup-overlay">
+  <div class="setup-box">
+    <h2>One-time setup</h2>
+    <p>This takes 5 minutes and lets everyone see live scores on their phone. You only do this once — the config saves automatically after.</p>
+    <div class="setup-steps">
+      <div class="setup-step"><div class="snum">1</div>
+        <p>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → <strong>Add project</strong> → give it any name → click through.</p></div>
+      <div class="setup-step"><div class="snum">2</div>
+        <p>In the left sidebar: <strong>Build → Realtime Database → Create database</strong> → pick any region → choose <strong>Test mode</strong>.</p></div>
+      <div class="setup-step"><div class="snum">3</div>
+        <p>Click the <strong>gear icon ⚙ → Project settings</strong> → scroll to "Your apps" → click the <strong>&lt;/&gt; Web</strong> icon → register app → copy the <code class="chip">firebaseConfig</code> block and paste below.</p></div>
     </div>
-    <div class="lb-table">
-      <div class="lb-head">
-        <div>#</div><div>Player</div>
-        <div style="text-align:right">Points</div>
-        <div style="text-align:right">Played</div>
-        <div style="text-align:right">Avg</div>
+    <textarea id="cfg-input" placeholder='{
+  apiKey: "AIzaSy...",
+  authDomain: "your-app.firebaseapp.com",
+  databaseURL: "https://your-app-default-rtdb.firebaseio.com",
+  projectId: "your-app",
+  storageBucket: "your-app.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456:web:abc123"
+}'></textarea>
+    <div class="setup-err" id="cfg-err"></div>
+    <button class="setup-btn" onclick="connectFirebase()">Connect & Go Live →</button>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" style="display:none">
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="live-dot"></span>Live Scoring</div>
+    <h1>BDB <span>AMERICANO</span></h1>
+    <div class="hero-date">24th April</div>
+    <div class="hero-sub">
+      <span><b>8</b> Players</span><span class="sep">·</span>
+      <span><b>2</b> Courts</span><span class="sep">·</span>
+      <span><b>32</b> Points</span><span class="sep">·</span>
+      <span><b>7</b> Rounds</span>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-inner">
+      <span class="prog-label">Tournament Progress</span>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <span class="prog-count" id="prog-count">0 / 14</span>
+    </div>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showPane('schedule',this)">📋 &nbsp;Schedule</button>
+      <button class="tab-btn" onclick="showPane('leaderboard',this)">🏆 &nbsp;Leaderboard</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="pane-schedule" class="pane active"></div>
+    <div id="pane-leaderboard" class="pane">
+      <div class="lb-stats">
+        <div class="lb-stat"><div class="lb-val" id="s-done">0</div><div class="lb-lbl">Matches Done</div></div>
+        <div class="lb-stat"><div class="lb-val" id="s-leader" style="font-size:20px;padding-top:8px">—</div><div class="lb-lbl">Leader</div></div>
+        <div class="lb-stat"><div class="lb-val" id="s-top">—</div><div class="lb-lbl">Top Score</div></div>
       </div>
-      <div id="lb-body"></div>
-    </div>
-    <button class="reset-btn" onclick="resetScores()">↺ &nbsp;Reset All Scores</button>
-  </div>
-
-  <div id="pane-howto" class="pane">
-    <div class="howto">
-      <h3>Host on GitHub Pages</h3>
-      <div class="step"><div class="step-n">1</div>
-        <p>Go to <a href="https://github.com" target="_blank">github.com</a> and sign up for a free account. Then click the <strong>+</strong> icon → <strong>New repository</strong>.</p></div>
-      <div class="step"><div class="step-n">2</div>
-        <p>Name it something like <code class="chip">americano-scoreboard</code>. Set it to <strong>Public</strong>. Tick <strong>Add a README file</strong>. Click <strong>Create repository</strong>.</p></div>
-      <div class="step"><div class="step-n">3</div>
-        <p>Inside the repo, click <strong>Add file → Upload files</strong>. Drag in this HTML file — but <strong>rename it to <code class="chip">index.html</code> first</strong> (GitHub Pages needs this exact name).</p></div>
-      <div class="step"><div class="step-n">4</div>
-        <p>Scroll down and click <strong>Commit changes</strong>.</p></div>
-      <div class="step"><div class="step-n">5</div>
-        <p>Go to <strong>Settings → Pages</strong> in the left sidebar. Under Source, choose <strong>Deploy from a branch</strong>, set branch to <code class="chip">main</code>, folder to <code class="chip">/ (root)</code>. Click <strong>Save</strong>.</p></div>
-      <div class="step"><div class="step-n">6</div>
-        <p>Wait about 60 seconds, refresh the page. Your URL will appear — e.g. <code class="chip">https://yourname.github.io/americano-scoreboard</code>. That's your live site — share it with everyone!</p></div>
-      <div class="note">
-        <strong>Note on scores:</strong> Scores save in your browser automatically. The person running the scoreboard just needs to keep the tab open. If you want every phone in the group to see live updates simultaneously, ask about the Firebase version of this app.
+      <div class="lb-table">
+        <div class="lb-head">
+          <div>#</div><div>Player</div>
+          <div style="text-align:right">Points</div>
+          <div style="text-align:right">Played</div>
+          <div style="text-align:right">Avg</div>
+        </div>
+        <div id="lb-body"></div>
       </div>
+      <button class="reset-btn" onclick="resetScores()">↺ &nbsp;Reset All Scores</button>
     </div>
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
 const MAX = 32;
 const PLAYERS = ["Chirag","Jubin","Param","Raunak","Rehan","Rishi","Sankalp","Shlok"];
@@ -334,10 +297,64 @@ const ROUNDS = [
     {id:"r7c2",court:2,a:["Raunak","Param"],   b:["Chirag","Shlok"]}]},
 ];
 const ALL = ROUNDS.flatMap(r => r.matches);
-let scores = JSON.parse(localStorage.getItem('am8scores') || '{}');
-const save = () => localStorage.setItem('am8scores', JSON.stringify(scores));
 
-// Build schedule
+let db = null;
+let scores = {};
+let timers = {};
+
+// ── FIREBASE CONNECT ──────────────────────────────────────────────────────────
+function connectFirebase() {
+  const raw = document.getElementById('cfg-input').value.trim();
+  const errEl = document.getElementById('cfg-err');
+  errEl.style.display = 'none';
+  let cfg = {};
+  try {
+    const pairs = raw.match(/(\w+)\s*:\s*"([^"]*)"/g) || [];
+    pairs.forEach(p => { const m = p.match(/(\w+)\s*:\s*"([^"]*)"/); if(m) cfg[m[1]] = m[2]; });
+    if (!cfg.databaseURL) throw new Error('Missing databaseURL — make sure you copied the full config block.');
+  } catch(e) {
+    errEl.textContent = '⚠ ' + e.message; errEl.style.display = 'block'; return;
+  }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.database();
+    db.ref('.info/connected').once('value', snap => {
+      localStorage.setItem('bdb_fb_cfg', JSON.stringify(cfg));
+      launchApp();
+    }, err => {
+      errEl.textContent = '⚠ Could not connect. Double-check the databaseURL and make sure Test Mode is on.';
+      errEl.style.display = 'block';
+    });
+  } catch(e) {
+    errEl.textContent = '⚠ ' + e.message; errEl.style.display = 'block';
+  }
+}
+
+// Try saved config on load
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('bdb_fb_cfg');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      db = firebase.database();
+      launchApp();
+    } catch(e) { localStorage.removeItem('bdb_fb_cfg'); }
+  }
+});
+
+// ── LAUNCH ────────────────────────────────────────────────────────────────────
+function launchApp() {
+  document.getElementById('setup-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  buildSchedule();
+  db.ref('scores').on('value', snap => {
+    scores = snap.val() || {};
+    syncAll();
+  });
+}
+
+// ── BUILD SCHEDULE UI ─────────────────────────────────────────────────────────
 function buildSchedule() {
   const pane = document.getElementById('pane-schedule');
   ROUNDS.forEach(rd => {
@@ -366,10 +383,9 @@ function buildSchedule() {
     });
     pane.appendChild(card);
   });
-  syncAll();
 }
 
-let timers = {};
+// ── SCORE INPUT ───────────────────────────────────────────────────────────────
 function onScore(id, side, raw) {
   const sa = document.getElementById(`sa-${id}`);
   const sb = document.getElementById(`sb-${id}`);
@@ -382,34 +398,43 @@ function onScore(id, side, raw) {
   if (!isNaN(a) && !isNaN(b)) {
     if (a + b !== MAX) {
       msg.textContent = `Must add to ${MAX} (currently ${a+b})`; msg.className = 'match-msg bad-msg';
-      sa.classList.add('bad'); sb.classList.add('bad'); sa.classList.remove('ok'); sb.classList.remove('ok');
-      delete scores[id]; save(); refresh(); return;
+      sa.classList.add('bad'); sb.classList.add('bad');
+      sa.classList.remove('ok'); sb.classList.remove('ok');
+      db.ref(`scores/${id}`).remove(); return;
     }
     msg.textContent = `✓ ${a} · ${b}`; msg.className = 'match-msg ok-msg';
-    sa.classList.remove('bad'); sb.classList.remove('bad'); sa.classList.add('ok'); sb.classList.add('ok');
+    sa.classList.remove('bad'); sb.classList.remove('bad');
+    sa.classList.add('ok'); sb.classList.add('ok');
     clearTimeout(timers[id]);
-    timers[id] = setTimeout(() => { scores[id] = {a,b}; save(); refresh(); }, 300);
+    timers[id] = setTimeout(() => db.ref(`scores/${id}`).set({a, b}), 350);
   } else {
     msg.textContent = ''; msg.className = 'match-msg';
-    if (scores[id]) { delete scores[id]; save(); refresh(); }
   }
 }
 
+// ── SYNC INPUTS FROM FIREBASE ─────────────────────────────────────────────────
 function syncAll() {
   ALL.forEach(m => {
     const d = scores[m.id];
     const sa = document.getElementById(`sa-${m.id}`);
     const sb = document.getElementById(`sb-${m.id}`);
     const msg = document.getElementById(`msg-${m.id}`);
-    if (!sa || !d) return;
-    if (document.activeElement !== sa) sa.value = d.a;
-    if (document.activeElement !== sb) sb.value = d.b;
-    sa.classList.add('ok'); sb.classList.add('ok');
-    if (msg) { msg.textContent = `✓ ${d.a} · ${d.b}`; msg.className = 'match-msg ok-msg'; }
+    if (!sa) return;
+    if (d) {
+      if (document.activeElement !== sa) sa.value = d.a;
+      if (document.activeElement !== sb) sb.value = d.b;
+      sa.classList.add('ok'); sb.classList.add('ok');
+      sa.classList.remove('bad'); sb.classList.remove('bad');
+      if (msg) { msg.textContent = `✓ ${d.a} · ${d.b}`; msg.className = 'match-msg ok-msg'; }
+    } else {
+      if (document.activeElement !== sa && !sa.value) sa.value = '';
+      if (document.activeElement !== sb && !sb.value) sb.value = '';
+    }
   });
   refresh();
 }
 
+// ── REFRESH ───────────────────────────────────────────────────────────────────
 function refresh() {
   const done = Object.keys(scores).length;
   document.getElementById('prog-fill').style.width = (done/ALL.length*100)+'%';
@@ -427,6 +452,7 @@ function refresh() {
   renderLB();
 }
 
+// ── LEADERBOARD ───────────────────────────────────────────────────────────────
 function computeScores() {
   const pts={}, played={};
   PLAYERS.forEach(p=>{pts[p]=0;played[p]=0;});
@@ -440,17 +466,16 @@ function computeScores() {
 
 function renderLB() {
   const sorted = computeScores();
-  const mc = ['c-g','c-s','c-b'];
-  const rc = ['r1','r2','r3'];
   let rank=1;
   sorted.forEach((p,i)=>{if(i>0&&p.pts<sorted[i-1].pts)rank=i+1;p.rank=rank;});
   document.getElementById('lb-body').innerHTML = sorted.map((p,i)=>{
-    const m=i<3?mc[i]:''; const r=i<3?rc[i]:'';
+    const mc=i<3?['c-g','c-s','c-b'][i]:'';
+    const rc=i<3?['r1','r2','r3'][i]:'';
     const icon=i===0?'🥇':i===1?'🥈':i===2?'🥉':p.rank;
-    return `<div class="lb-row ${r}">
-      <div class="lb-rank ${m}">${icon}</div>
+    return `<div class="lb-row ${rc}">
+      <div class="lb-rank ${mc}">${icon}</div>
       <div class="lb-name">${p.name}</div>
-      <div class="lb-pts ${m}">${p.pts}</div>
+      <div class="lb-pts ${mc}">${p.pts}</div>
       <div class="lb-sub">${p.played}</div>
       <div class="lb-sub">${p.avg}</div>
     </div>`;
@@ -464,6 +489,7 @@ function renderLB() {
   }
 }
 
+// ── UTILS ─────────────────────────────────────────────────────────────────────
 function showPane(name, btn) {
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -472,14 +498,11 @@ function showPane(name, btn) {
 }
 
 function resetScores() {
-  if(!confirm('Reset all scores? This cannot be undone.')) return;
-  scores={}; save();
+  if(!confirm('Reset ALL scores for everyone? This cannot be undone.')) return;
+  db.ref('scores').remove();
   document.querySelectorAll('.score-box').forEach(e=>{e.value='';e.classList.remove('ok','bad');});
   document.querySelectorAll('.match-msg').forEach(e=>{e.textContent='';e.className='match-msg';});
-  refresh();
 }
-
-buildSchedule();
 </script>
 </body>
 </html>
